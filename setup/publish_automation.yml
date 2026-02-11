@@ -1,0 +1,32 @@
+
+name: ILMP Content Automation
+
+on:
+  schedule:
+    # 13:00 UTC = 8:00 AM COT
+    - cron: '0 13 * * *'
+    # 19:00 UTC = 2:00 PM COT
+    - cron: '0 19 * * *'
+  workflow_dispatch: # Allow manual triggers
+
+jobs:
+  publish-content:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Install dependencies
+        run: npm install
+
+      - name: Run Content Generation Agent
+        env:
+          GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
+          SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
+          SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
+        run: node scripts/generate-content.js
